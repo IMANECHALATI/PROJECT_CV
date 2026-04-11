@@ -109,3 +109,50 @@ model.add(Dense(num_classes,kernel_initializer='he_normal'))
 model.add(Activation('softmax'))
 
 print(model.summary())
+
+
+from keras.optimizers import RMSprop, SGD, Adam
+from keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau
+
+checkpoint = ModelCheckpoint('Emotion_little_vgg.h5',
+                             monitor='val_loss',
+                             mode='min',
+                             save_best_only=True,
+                             verbose=1 )
+
+earlyStop = EarlyStopping(monitor='val_loss',
+                          min_delta=0,
+                          patience=3,
+                          verbose=1,
+                          restore_best_weights=True
+                          )
+
+reduce_lr = ReduceLROnPlateau(
+    monitor='val_loss',
+    factor=0.2,
+    patience=3,
+    verbose=1,
+    min_delta=0.0001
+)
+
+callbacks = [earlyStop, checkpoint, reduce_lr]
+
+model.compile(
+    loss='categorical_crossentropy',
+    optimizer=Adam(learning_rate=0.001),
+    metrics=['accuracy']
+)
+
+nb_train_samples = 24176
+nb_validation_samples = 3006
+epochs = 25
+
+
+history  = model.fit(
+    train_generator,
+    steps_per_epoch=nb_train_samples // batch_size,
+    epochs=epochs,
+    callbacks=callbacks,
+    validation_data=val_generator,
+    validation_steps=nb_validation_samples // batch_size
+)
