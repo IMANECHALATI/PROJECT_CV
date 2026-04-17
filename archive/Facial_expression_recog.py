@@ -10,7 +10,7 @@ face_classifier = cv2.CascadeClassifier(
 )
 
 # Charger le modèle entraîné
-classifier = load_model("Emotion_little_vgg.h5")
+classifier = load_model("Emotion_restaurant.h5")
 
 # Labels selon ton dataset
 class_labels = ['angry', 'disgust', 'fear', 'happy', 'neutral', 'sad', 'surprise']

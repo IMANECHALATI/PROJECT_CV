@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Emotion Analytics | Reports</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+
+    <style>
+        .chart-container {
+                    position: relative;
+                    height: 260px;
+                     width: 100%;
+                         }
+        .compact-card .card-body {
+            padding: 0.75rem;
+        }
+
+        .compact-header {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        .stat-card-compact {
+            text-align: center;
+            padding: 0.5rem;
+        }
+
+        .stat-card-compact h2 {
+            font-size: 1.5rem;
+            margin: 0;
+        }
+
+        .stat-card-compact h6 {
+            font-size: 0.7rem;
+            margin: 0;
+            opacity: 0.9;
+        }
+
+        .table td, .table th {
+            padding: 0.4rem;
+            font-size: 0.8rem;
+        }
+
+        .btn-sm-custom {
+            padding: 0.2rem 0.5rem;
+            font-size: 0.7rem;
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar navbar-dark bg-dark">
+    <div class="container-fluid">
+        <span class="navbar-brand">
+            Smart Restaurant Emotion Analytics
+        </span>
+        <div class="d-flex">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-light me-2 btn-sm">Dashboard</a>
+            <a href="{{ url_for('reports') }}" class="btn btn-light me-2 btn-sm">Reports</a>
+            <a href="{{ url_for('settings') }}" class="btn btn-outline-light btn-sm">Settings</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid mt-3">
+
+    <div class="card shadow mb-3">
+        <div class="card-header bg-dark text-white py-2">
+            <small>Report Period</small>
+        </div>
+        <div class="card-body py-2">
+            <div class="row g-2">
+                <div class="col-md-4">
+                    <label class="form-label small mb-0">From Date</label>
+                    <input type="date" id="startDate" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small mb-0">To Date</label>
+                    <input type="date" id="endDate" class="form-control form-control-sm">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small mb-0">&nbsp;</label>
+                    <button class="btn btn-primary btn-sm d-block w-100" onclick="generateReport()">
+                        Generate Report
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-2 mb-3" id="summaryCards">
+        <div class="col-md-3">
+            <div class="card shadow bg-primary text-white">
+                <div class="card-body stat-card-compact">
+                    <h6>Total Customers</h6>
+                    <h2 id="totalCustomers">0</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow bg-success text-white">
+                <div class="card-body stat-card-compact">
+                    <h6>Satisfaction Rate</h6>
+                    <h2 id="satisfactionRate">0%</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow bg-warning text-dark">
+                <div class="card-body stat-card-compact">
+                    <h6>Peak Negative Hour</h6>
+                    <h2 id="peakHour">--:--</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow bg-danger text-white">
+                <div class="card-body stat-card-compact">
+                    <h6>Complaints Triggered</h6>
+                    <h2 id="totalAlerts">0</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-2 mb-3">
+        <div class="col-md-6">
+            <div class="card shadow compact-card">
+                <div class="card-header bg-dark text-white compact-header">
+                    <small>Emotion Distribution</small>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="emotionPieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow compact-card">
+                <div class="card-header bg-dark text-white compact-header">
+                    <small>Weekly Satisfaction Trend</small>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="weeklyTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-2 mb-3">
+        <div class="col-md-12">
+            <div class="card shadow compact-card">
+                <div class="card-header bg-dark text-white compact-header">
+                    <small>Hourly Emotion Heatmap</small>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="height:180px;">
+                        <canvas id="heatmapChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-2 mb-3">
+        <div class="col-md-12">
+            <div class="card shadow compact-card">
+                <div class="card-header bg-dark text-white compact-header">
+                    <small>Import / Export Data</small>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2 align-items-end">
+
+                        <div class="col-md-3">
+                            <label class="form-label small mb-0">Upload CSV</label>
+                            <input type="file" id="csvUpload" class="form-control form-control-sm" accept=".csv">
+                        </div>
+
+                        <div class="col-md-2">
+                            <button class="btn btn-success btn-sm w-100" onclick="uploadCSV()">
+                                Upload
+                            </button>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label small mb-0">Saved Files</label>
+                            <select id="csvFileSelect" class="form-select form-select-sm" onchange="loadCSVFile()">
+                                <option value="">Select file</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-2">
+                            <button class="btn btn-info btn-sm w-100" onclick="downloadTemplate()">
+                                Template
+                            </button>
+                        </div>
+
+                        <div class="col-md-2">
+                            <button class="btn btn-secondary btn-sm w-100" onclick="generateReport()">
+                                Refresh
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-2 mb-3">
+        <div class="col-md-12">
+            <div class="card shadow compact-card">
+                <div class="card-header bg-dark text-white compact-header">
+                    <small>Detailed Report</small>
+                </div>
+
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-sm mb-0" id="reportTable">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Happy</th>
+                                    <th>Neutral</th>
+                                    <th>Angry</th>
+                                    <th>Sad</th>
+                                    <th>Surprise</th>
+                                    <th>Satisfaction</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="reportTableBody">
+                                <tr>
+                                    <td colspan="7" class="text-center small">
+                                        Select date range to view report
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-white py-2">
+                    <button class="btn btn-success btn-sm" onclick="exportReport('csv')">
+                        Export CSV
+                    </button>
+
+                    <button class="btn btn-info btn-sm" onclick="exportReport('json')">
+                        Export JSON
+                    </button>
+
+                    <button class="btn btn-primary btn-sm" onclick="printReport()">
+                        Print
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div id="loadingOverlay"
+style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+
+    <div class="spinner-border text-light" style="width:3rem; height:3rem;" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script src="{{ url_for('static', filename='js/reports.js') }}"></script>
+
+<script>
+const today = new Date();
+const weekAgo = new Date();
+weekAgo.setDate(today.getDate() - 7);
+
+document.getElementById('startDate').value = weekAgo.toISOString().split('T')[0];
+document.getElementById('endDate').value = today.toISOString().split('T')[0];
+
+document.addEventListener('DOMContentLoaded', function () {
+    loadAvailableCSVFiles();
+    generateReport();
+});
+
+function loadAvailableCSVFiles() {
+    fetch('/api/list_csv_files')
+        .then(response => response.json())
+        .then(files => {
+            const select = document.getElementById('csvFileSelect');
+
+            if (select && files.length > 0) {
+                select.innerHTML = '<option value="">Select file</option>';
+
+                files.forEach(file => {
+                    select.innerHTML += `<option value="${file}">${file}</option>`;
+                });
+            }
+        });
+}
+
+function uploadCSV() {
+    const fileInput = document.getElementById('csvUpload');
+    const file = fileInput.files[0];
+
+    if (!file) {
+        alert('Please select a CSV file first');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    fetch('/api/upload_csv', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(`Successfully uploaded ${data.rows} rows`);
+            loadAvailableCSVFiles();
+            generateReport();
+        } else {
+            alert('Upload failed: ' + data.error);
+        }
+    });
+}
+
+function loadCSVFile() {
+    const filename = document.getElementById('csvFileSelect').value;
+    if (!filename) return;
+
+    fetch(`/api/load_csv_file?filename=${filename}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateSummary(data.data);
+                updatePieChart(data.data);
+                updateWeeklyTrend(data.data);
+                updateHeatmap(data.data);
+                updateTable(data.data);
+
+                alert(`Loaded ${filename} successfully`);
+            } else {
+                alert('Failed to load file: ' + data.error);
+            }
+        });
+}
+
+function downloadTemplate() {
+    window.location.href = '/api/download_csv_template';
+}
+</script>
+
+</body>
+</html>
