@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bienvenue | SmartResto AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="landing-body">
+    
+    <nav class="landing-nav glass-card">
+        <div class="logo-container" style="flex-direction: row; margin-bottom: 0;">
+            <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="Logo" class="sidebar-logo">
+            <span>SmartResto</span>
+        </div>
+        <a href="{{ url_for('dashboard') }}" class="btn-glow small">Dashboard Live <i class="fa-solid fa-arrow-right"></i></a>
+    </nav>
+
+    <main class="landing-main">
+        <div class="hero-section">
+            <div class="badge-new">✨ Nouvelle version IA - Précision CNN Augmentée</div>
+            <h1 class="hero-title">L'Intelligence Artificielle au service de votre excellence.</h1>
+            <p class="hero-subtitle">Analysez les émotions de vos clients en temps réel, optimisez votre service et transformez chaque repas en une expérience inoubliable grâce à la vision par ordinateur avancée.</p>
+            
+            <div class="hero-buttons">
+                <a href="{{ url_for('dashboard') }}" class="btn-glow large text-center"><i class="fa-solid fa-power-off"></i> Lancer l'Analyse Live</a>
+            </div>
+        </div>
+
+        <div class="features-grid">
+            <div class="glass-card feature-card">
+                <div class="feature-icon"><i class="fa-solid fa-video"></i></div>
+                <h3>Détection en Continu</h3>
+                <p>Analyse de flux vidéo en direct avec une latence quasi-nulle pour une réactivité immédiate.</p>
+            </div>
+            <div class="glass-card feature-card">
+                <div class="feature-icon"><i class="fa-solid fa-face-smile-beam"></i></div>
+                <h3>7 Émotions Clés</h3>
+                <p>Reconnaissance faciale ultra-précise basée sur un modèle de Deep Learning de pointe.</p>
+            </div>
+            <div class="glass-card feature-card">
+                <div class="feature-icon"><i class="fa-solid fa-bell"></i></div>
+                <h3>Alertes Mécontentement</h3>
+                <p>Système de notification intelligent pour manager en cas de colère prolongée (>10s).</p>
+            </div>
+        </div>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/Acceuil.js') }}"></script>
+</body>
+</html>

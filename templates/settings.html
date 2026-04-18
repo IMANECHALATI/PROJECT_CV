@@ -1,222 +1,60 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Restaurant Emotion Analytics | Settings</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>SmartResto | Paramètres IA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <nav class="navbar navbar-dark bg-dark">
-        <div class="container-fluid">
-            <span class="navbar-brand">🍽️ Smart Restaurant Emotion Analytics</span>
-            <div class="d-flex">
-                <a href="/" class="btn btn-outline-light me-2">Dashboard</a>
-                <a href="/reports" class="btn btn-outline-light me-2">Reports</a>
-                <a href="/settings" class="btn btn-light">Settings</a>
-            </div>
+    <aside class="sidebar">
+        <div class="logo-container">
+            <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="Logo" class="sidebar-logo">
+            <span>SmartResto</span>
         </div>
-    </nav>
+        <nav>
+            <a href="{{ url_for('index') }}" class="nav-item"><i class="fa-solid fa-house"></i> Accueil</a>
+            <a href="{{ url_for('dashboard') }}" class="nav-item"><i class="fa-solid fa-border-all"></i> Dashboard</a>
+            <a href="{{ url_for('reports') }}" class="nav-item"><i class="fa-solid fa-chart-pie"></i> Reports</a>
+            <a href="{{ url_for('settings') }}" class="nav-item active"><i class="fa-solid fa-sliders"></i> Settings</a>
+        </nav>
+    </aside>
 
-    <div class="container-fluid mt-4">
-        <div class="row">
-            <div class="col-md-6">
-                <!-- Camera Settings -->
-                <div class="card shadow mb-4">
-                    <div class="card-header bg-dark text-white">
-                        📷 Camera Configuration
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <label class="form-label">Camera Source</label>
-                            <select id="cameraSource" class="form-select">
-                                <option value="0">Built-in Webcam (0)</option>
-                                <option value="1">External Camera (1)</option>
-                                <option value="2">IP Camera (2)</option>
-                            </select>
-                            <div class="form-text">Select camera device index</div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">IP Camera URL (if applicable)</label>
-                            <input type="text" id="ipCameraUrl" class="form-control" placeholder="http://192.168.1.100:8080/video">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Frame Processing Interval</label>
-                            <select id="frameInterval" class="form-select">
-                                <option value="1">Every frame (Real-time)</option>
-                                <option value="2">Every 2 frames</option>
-                                <option value="5">Every 5 frames (Performance)</option>
-                                <option value="10">Every 10 frames (Low CPU)</option>
-                            </select>
-                        </div>
-                        <button class="btn btn-primary" onclick="saveCameraSettings()">Save Camera Settings</button>
-                    </div>
-                </div>
+    <main class="main-content">
+        <header class="topbar">
+            <h1>Paramètres IA & Système</h1>
+            <button id="saveSettings" class="btn-glow">Enregistrer les modifications Premium</button>
+        </header>
 
-                <!-- Alert Settings -->
-                <div class="card shadow mb-4">
-                    <div class="card-header bg-dark text-white">
-                        🚨 Alert Configuration
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <label class="form-label">Angry Duration Threshold (seconds)</label>
-                            <input type="number" id="angryThreshold" class="form-control" value="10" min="1" max="60">
-                            <div class="form-text">Alert after customer angry for X seconds</div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Confidence Threshold</label>
-                            <input type="range" id="confidenceThreshold" class="form-range" min="0" max="100" value="70">
-                            <div class="d-flex justify-content-between">
-                                <span>Low</span>
-                                <span id="confidenceValue">70%</span>
-                                <span>High</span>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Alert Methods</label>
-                            <div class="form-check">
-                                <input type="checkbox" id="alertConsole" class="form-check-input" checked>
-                                <label class="form-check-label">Console Log</label>
-                            </div>
-                            <div class="form-check">
-                                <input type="checkbox" id="alertFile" class="form-check-input" checked>
-                                <label class="form-check-label">Save to File (alerts.log)</label>
-                            </div>
-                            <div class="form-check">
-                                <input type="checkbox" id="alertEmail" class="form-check-input">
-                                <label class="form-check-label">Send Email</label>
-                            </div>
-                            <div class="form-check">
-                                <input type="checkbox" id="alertSlack" class="form-check-input">
-                                <label class="form-check-label">Send to Slack Webhook</label>
-                            </div>
-                        </div>
-                        <div id="emailSettings" style="display: none;">
-                            <div class="mb-3">
-                                <label class="form-label">Email Address</label>
-                                <input type="email" id="alertEmailAddress" class="form-control" placeholder="manager@restaurant.com">
-                            </div>
-                        </div>
-                        <div id="slackSettings" style="display: none;">
-                            <div class="mb-3">
-                                <label class="form-label">Slack Webhook URL</label>
-                                <input type="text" id="slackWebhook" class="form-control" placeholder="https://hooks.slack.com/services/...">
-                            </div>
-                        </div>
-                        <button class="btn btn-primary" onclick="saveAlertSettings()">Save Alert Settings</button>
-                    </div>
+        <div class="settings-grid">
+            <section class="glass-card">
+                <h3><i class="fa-solid fa-microchip"></i> Configuration IA</h3>
+                <div class="form-group">
+                    <label>Sensibilité de détection face au bruit visuel</label>
+                    <input type="range" class="slider" min="1" max="10" value="5">
+                    <div class="range-labels"><span>Standard</span><span>Sévère (Doublons)</span></div>
                 </div>
-            </div>
+                <div class="form-group">
+                    <label>Seuil de confiance de prédiction (%)</label>
+                    <input type="number" class="glass-input" value="70">
+                </div>
+            </section>
 
-            <div class="col-md-6">
-                <!-- AI Model Settings -->
-                <div class="card shadow mb-4">
-                    <div class="card-header bg-dark text-white">
-                        🧠 AI Model Configuration
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <label class="form-label">Current Model</label>
-                            <select id="modelSelect" class="form-select">
-                                <option value="Emotion_little_vgg.h5">FER2013 Baseline</option>
-                                <option value="Emotion_restaurant.h5" selected>Restaurant Fine-tuned ✅</option>
-                            </select>
-                            <div class="form-text mt-2">
-                                <span class="badge bg-success">Active: Restaurant Fine-tuned</span>
-                                <span class="badge bg-secondary">Trained on: FER2013 + Restaurant Dataset</span>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Detection Sensitivity</label>
-                            <input type="range" id="sensitivity" class="form-range" min="1" max="10" value="5">
-                            <div class="d-flex justify-content-between">
-                                <span>Fewer detections</span>
-                                <span id="sensitivityValue">Normal</span>
-                                <span>More detections</span>
-                            </div>
-                            <div class="form-text">Higher sensitivity = more faces detected but more false positives</div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="form-check">
-                                <input type="checkbox" id="useGpu" class="form-check-input">
-                                <label class="form-check-label">Use GPU (if available)</label>
-                            </div>
-                            <div class="form-check">
-                                <input type="checkbox" id="saveDetectedFaces" class="form-check-input">
-                                <label class="form-check-label">Save detected faces for dataset improvement</label>
-                            </div>
-                        </div>
-                        <button class="btn btn-primary" onclick="saveModelSettings()">Apply Model Settings</button>
-                        <button class="btn btn-danger ms-2" onclick="retrainModel()">🔄 Retrain with New Data</button>
-                    </div>
+            <section class="glass-card">
+                <h3><i class="fa-solid fa-bell"></i> Système d'Alertes</h3>
+                <div class="toggle-group">
+                    <span>Notifications Desktop (Colère)</span>
+                    <label class="switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
                 </div>
-
-                <!-- Display Settings -->
-                <div class="card shadow mb-4">
-                    <div class="card-header bg-dark text-white">
-                        🎨 Display Configuration
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <label class="form-label">Theme</label>
-                            <select id="theme" class="form-select">
-                                <option value="light">Light Mode</option>
-                                <option value="dark">Dark Mode</option>
-                                <option value="auto">Auto (System)</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Refresh Rate (seconds)</label>
-                            <input type="number" id="refreshRate" class="form-control" value="2" min="0.5" max="10" step="0.5">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Show Confidence on Video</label>
-                            <div class="form-check form-switch">
-                                <input type="checkbox" id="showConfidence" class="form-check-input" checked>
-                                <label class="form-check-label">Display confidence percentage</label>
-                            </div>
-                        </div>
-                        <button class="btn btn-primary" onclick="saveDisplaySettings()">Save Display Settings</button>
-                    </div>
+                <div class="form-group">
+                    <label>Délai avant alerte de mécontentement (s)</label>
+                    <input type="number" class="glass-input" value="10">
                 </div>
-
-                <!-- System Info -->
-                <div class="card shadow">
-                    <div class="card-header bg-dark text-white">
-                        ℹ️ System Information
-                    </div>
-                    <div class="card-body">
-                        <table class="table table-sm">
-                            <tr>
-                                <td>TensorFlow Version:</td>
-                                <td id="tfVersion">Loading...</td>
-                            </tr>
-                            <tr>
-                                <td>OpenCV Version:</td>
-                                <td id="cvVersion">Loading...</td>
-                            </tr>
-                            <tr>
-                                <td>Model Accuracy (Restaurant):</td>
-                                <td><span class="badge bg-success">78.5%</span></td>
-                            </tr>
-                            <tr>
-                                <td>Total Sessions:</td>
-                                <td id="totalSessions">0</td>
-                            </tr>
-                            <tr>
-                                <td>Uptime:</td>
-                                <td id="uptime">00:00:00</td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-            </div>
+            </section>
         </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    </main>
     <script src="{{ url_for('static', filename='js/settings.js') }}"></script>
 </body>
 </html>
