@@ -1,13 +1,18 @@
-from flask import Flask, render_template, Response, jsonify
+from flask import Flask, render_template, Response, jsonify, request, redirect, url_for, session
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.image import img_to_array
 import cv2
 import numpy as np
-from collections import Counter, deque
+from collections import Counter
 from datetime import datetime
 import time
+import json
+import os
+import hashlib
+from functools import wraps
 
 app = Flask(__name__)
+app.secret_key = "smartresto_secret_key"
 
 # ============================================
 # CONFIGURATION
@@ -15,6 +20,55 @@ app = Flask(__name__)
 EMOTION_MODEL = "Emotion_little_vgg.h5"
 FACE_CASCADE = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 EMOTIONS = ['angry', 'disgust', 'fear', 'happy', 'neutral', 'sad', 'surprise']
+USERS_FILE = "users.json"
+REPORTS_FILE = "reports_data.json"
+
+# Paramètres modifiables depuis Settings
+APP_SETTINGS = {
+    "sensitivity": 5,
+    "confidence": 70,
+    "alerts_enabled": True,
+    "alert_delay": 10
+}
+
+# ============================================
+# GESTION UTILISATEURS
+# ============================================
+def load_users():
+    if not os.path.exists(USERS_FILE):
+        return {}
+    with open(USERS_FILE, "r") as f:
+        return json.load(f)
+
+def save_users(users):
+    with open(USERS_FILE, "w") as f:
+        json.dump(users, f)
+
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
+
+def login_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if 'user' not in session:
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated
+
+# ============================================
+# GESTION RAPPORTS JSON
+# ============================================
+def load_reports():
+    if os.path.exists(REPORTS_FILE):
+        with open(REPORTS_FILE, 'r') as f:
+            return json.load(f)
+    return []
+
+def save_report(report_data):
+    reports = load_reports()
+    reports.append(report_data)
+    with open(REPORTS_FILE, 'w') as f:
+        json.dump(reports, f, indent=4)
 
 # ============================================
 # LOGIQUE DE STATISTIQUES
@@ -31,6 +85,8 @@ class EmotionStats:
         self.last_face_time = 0
         self.angry_start_time = None
         self.alert_triggered = False
+        self.alerts_count = 0
+        self.is_alerting = False
 
     def update_frame_faces(self, num_faces):
         current_time = time.time()
@@ -48,22 +104,29 @@ class EmotionStats:
     def add_detection(self, emotion, confidence):
         self.total_frames += 1
         self.emotion_counts[emotion] += 1
-        
-        # Logique d'alerte : 10 secondes de colère
-        if emotion == "angry" and confidence > 0.70:
+
+        conf_threshold = APP_SETTINGS["confidence"] / 100.0
+
+        if APP_SETTINGS["alerts_enabled"] and emotion == "angry" and confidence > conf_threshold:
             if self.angry_start_time is None:
                 self.angry_start_time = time.time()
-            elif time.time() - self.angry_start_time > 10:
-                if not self.alert_triggered:
+            elif time.time() - self.angry_start_time > APP_SETTINGS["alert_delay"]:
+                if not self.is_alerting:
+                    self.is_alerting = True
+                    self.alerts_count += 1
                     self.alert_triggered = True
                     return True
         else:
-            self.angry_start_time = None
-            self.alert_triggered = False
+            if emotion != "angry" or confidence <= conf_threshold or not APP_SETTINGS["alerts_enabled"]:
+                self.angry_start_time = None
+                self.is_alerting = False
+                self.alert_triggered = False
+
         return False
 
     def get_satisfaction_score(self):
-        if self.total_frames == 0: return 0
+        if self.total_frames == 0:
+            return 0
         good = self.emotion_counts["happy"] + self.emotion_counts["neutral"]
         return int((good / self.total_frames) * 100)
 
@@ -79,9 +142,13 @@ stats = EmotionStats()
 camera = None
 current_emotion = {"emotion": "neutral", "confidence": 0, "face_detected": False, "alert": False}
 
+# ============================================
+# CAMERA
+# ============================================
 def get_camera():
     global camera
-    if camera is None: camera = cv2.VideoCapture(0)
+    if camera is None:
+        camera = cv2.VideoCapture(0)
     return camera
 
 def generate_frames():
@@ -91,11 +158,16 @@ def generate_frames():
     while True:
         cam = get_camera()
         success, frame = cam.read()
-        if not success: break
+        if not success:
+            break
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        # Détection équilibrée
-        faces = FACE_CASCADE.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(40, 40))
+        faces = FACE_CASCADE.detectMultiScale(
+            gray,
+            scaleFactor=1.1,
+            minNeighbors=int(APP_SETTINGS["sensitivity"]),
+            minSize=(40, 40)
+        )
 
         current_emotion["face_detected"] = len(faces) > 0
         stats.update_frame_faces(len(faces))
@@ -116,10 +188,8 @@ def generate_frames():
             current_emotion["confidence"] = confidence
 
             if stats.add_detection(emotion, confidence):
-                current_emotion["alert"] = True # Déclenche l'alerte pour le front-end
+                current_emotion["alert"] = True
 
-            # Rendu visuel propre sur la caméra
-            # On dessine en blanc pour le contraste, texte plus grand
             cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 255, 255), 2)
             cv2.putText(frame, f"{emotion.upper()}", (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
 
@@ -127,29 +197,76 @@ def generate_frames():
         yield (b'--frame\r\nContent-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
 
 # ============================================
-# ROUTES
+# ROUTES AUTH
+# ============================================
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        users = load_users()
+
+        if username in users:
+            return render_template('register.html', error="Nom d'utilisateur déjà pris.")
+
+        users[username] = hash_password(password)
+        save_users(users)
+        return redirect(url_for('login'))
+
+    return render_template('register.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        users = load_users()
+
+        if username in users and users[username] == hash_password(password):
+            session['user'] = username
+            return redirect(url_for('dashboard'))
+
+        return render_template('login.html', error="Identifiants incorrects.")
+
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('user', None)
+    return redirect(url_for('index'))
+
+# ============================================
+# ROUTES PRINCIPALES
 # ============================================
 @app.route('/')
 def index():
-    # Route racine pointe vers la nouvelle Landing Page
     return render_template("Acceuil.html")
 
 @app.route('/dashboard')
-def dashboard(): 
+@login_required
+def dashboard():
     return render_template("dashboard.html")
 
 @app.route('/reports')
-def reports(): 
+@login_required
+def reports():
     return render_template("reports.html")
 
 @app.route('/settings')
-def settings(): 
+@login_required
+def settings():
     return render_template("settings.html")
 
 @app.route('/video_feed')
-def video_feed(): return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+@login_required
+def video_feed():
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
+# ============================================
+# ROUTES API
+# ============================================
 @app.route('/api/stats')
+@login_required
 def api_stats():
     return jsonify({
         "total_customers": stats.get_display_customers(),
@@ -159,31 +276,47 @@ def api_stats():
     })
 
 @app.route('/api/reset_stats', methods=['POST'])
+@login_required
 def reset_stats():
+    global stats
+    total_cust = stats.get_display_customers()
+    if total_cust > 0:
+        save_report({
+            "date": datetime.now().strftime("%Y-%m-%d %H:%M"),
+            "customers": total_cust,
+            "satisfaction": stats.get_satisfaction_score(),
+            "alerts": stats.alerts_count
+        })
     stats.reset()
     return jsonify({"status": "success"})
 
-# Fausse API pour les rapports historiques
 @app.route('/api/report')
+@login_required
 def api_report():
+    reports = load_reports()
+    if not reports:
+        return jsonify({"weekly_trend": [], "daily_data": []})
+    recent = reports[-7:] if len(reports) > 7 else reports
     return jsonify({
-        "total_customers": 150,
-        "total_alerts": 6,
-        "weekly_trend": [
-            {"day":"Mon","satisfaction":80},
-            {"day":"Tue","satisfaction":84},
-            {"day":"Wed","satisfaction":78},
-            {"day":"Thu","satisfaction":88},
-            {"day":"Fri","satisfaction":82},
-            {"day":"Sat","satisfaction":90},
-            {"day":"Sun","satisfaction":92}
-        ],
-        "daily_data": [
-            {"date":"2026-04-10", "satisfaction":78},
-            {"date":"2026-04-11", "satisfaction":84},
-            {"date":"2026-04-12", "satisfaction":90}
-        ]
+        "weekly_trend": [{"day": r["date"].split(" ")[1], "satisfaction": r["satisfaction"]} for r in recent],
+        "daily_data": list(reversed(reports))
     })
+
+@app.route('/api/settings', methods=['GET'])
+@login_required
+def get_settings():
+    return jsonify(APP_SETTINGS)
+
+@app.route('/api/settings', methods=['POST'])
+@login_required
+def update_settings():
+    global APP_SETTINGS
+    data = request.json
+    APP_SETTINGS["sensitivity"] = int(data.get("sensitivity", 5))
+    APP_SETTINGS["confidence"] = int(data.get("confidence", 70))
+    APP_SETTINGS["alerts_enabled"] = bool(data.get("alerts_enabled", True))
+    APP_SETTINGS["alert_delay"] = int(data.get("alert_delay", 10))
+    return jsonify({"status": "success", "settings": APP_SETTINGS})
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000, threaded=True)

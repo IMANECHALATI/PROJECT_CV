@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription | SmartResto AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .auth-body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: auto;
+        }
+
+        .auth-card {
+            background: rgba(26, 58, 45, 0.92);
+            border: 1px solid rgba(245, 238, 218, 0.15);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 60px 50px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .auth-logo {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .auth-logo img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 2px solid #f1da9b;
+        }
+
+        .auth-logo span {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: white;
+        }
+
+        .auth-card h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: white;
+            text-align: center;
+        }
+
+        .auth-form {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-group label {
+            color: #f3d8a3;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 18px;
+            color: #f1da9b;
+            font-size: 1rem;
+        }
+
+        .auth-input {
+            width: 100%;
+            background: rgba(245, 238, 218, 0.05);
+            border: 1px solid rgba(245, 238, 218, 0.15);
+            padding: 16px 16px 16px 48px;
+            border-radius: 12px;
+            color: white;
+            outline: none;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+
+        .auth-input:focus {
+            border-color: #f1da9b;
+        }
+
+        .auth-btn {
+            width: 100%;
+            background: #122a21;
+            color: #f1da9b;
+            border: 1px solid #f1da9b;
+            padding: 18px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .auth-btn:hover {
+            box-shadow: 0 0 25px rgba(241, 218, 155, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .auth-link {
+            color: #f3d8a3;
+            font-size: 0.95rem;
+            text-align: center;
+        }
+
+        .auth-link a {
+            color: #f1da9b;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-link a:hover {
+            text-decoration: underline;
+        }
+
+        .error-msg {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            width: 100%;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="auth-body">
+
+    <div class="auth-card">
+
+        <div class="auth-logo">
+            <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="Logo">
+            <span>SmartResto</span>
+        </div>
+
+        <h2>Créer un compte</h2>
+
+        {% if error %}
+        <div class="error-msg">
+            <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
+        </div>
+        {% endif %}
+
+        <form class="auth-form" method="POST" action="/register">
+            <div class="input-group">
+                <label>Nom d'utilisateur</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-user"></i>
+                    <input class="auth-input" type="text" name="username" placeholder="Choisissez un nom d'utilisateur" required>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Mot de passe</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock"></i>
+                    <input class="auth-input" type="password" name="password" placeholder="Choisissez un mot de passe" required>
+                </div>
+            </div>
+
+            <button type="submit" class="auth-btn">
+                <i class="fa-solid fa-user-plus"></i> S'inscrire
+            </button>
+        </form>
+
+        <p class="auth-link">
+            Déjà un compte ? <a href="{{ url_for('login') }}">Se connecter</a>
+        </p>
+
+    </div>
+
+</body>
+</html>

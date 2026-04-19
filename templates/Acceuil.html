@@ -9,45 +9,123 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body class="landing-body">
-    
-    <nav class="landing-nav glass-card">
-        <div class="logo-container" style="flex-direction: row; margin-bottom: 0;">
-            <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="Logo" class="sidebar-logo">
-            <span>SmartResto</span>
-        </div>
-        <a href="{{ url_for('dashboard') }}" class="btn-glow small">Dashboard Live <i class="fa-solid fa-arrow-right"></i></a>
-    </nav>
 
+   <nav class="landing-nav glass-card">
+    <div class="logo-container" style="flex-direction: row; margin-bottom: 0; gap: 15px;">
+        <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="Logo" class="sidebar-logo" 
+             style="width: 55px; height: 55px;">  <!-- ← réduisez ici -->
+        <span style="font-size: 1.6rem; color: #f1da9b;">SmartResto</span>
+    </div>
+    <div class="nav-auth">
+        <a href="{{ url_for('register') }}" class="btn-register">
+            <i class="fa-solid fa-user-plus"></i> S'inscrire
+        </a>
+        <a href="{{ url_for('login') }}" class="btn-login">
+            <i class="fa-solid fa-right-to-bracket"></i> Se connecter
+        </a>
+    </div>
+</nav>
     <main class="landing-main">
+
+        <!-- HERO -->
         <div class="hero-section">
-            <div class="badge-new">✨ Nouvelle version IA - Précision CNN Augmentée</div>
-            <h1 class="hero-title">L'Intelligence Artificielle au service de votre excellence.</h1>
+            <h1 class="hero-title">L'expérience parfaite commence par comprendre chaque émotion.</h1>
             <p class="hero-subtitle">Analysez les émotions de vos clients en temps réel, optimisez votre service et transformez chaque repas en une expérience inoubliable grâce à la vision par ordinateur avancée.</p>
             
-            <div class="hero-buttons">
-                <a href="{{ url_for('dashboard') }}" class="btn-glow large text-center"><i class="fa-solid fa-power-off"></i> Lancer l'Analyse Live</a>
-            </div>
         </div>
 
-        <div class="features-grid">
-            <div class="glass-card feature-card">
-                <div class="feature-icon"><i class="fa-solid fa-video"></i></div>
-                <h3>Détection en Continu</h3>
-                <p>Analyse de flux vidéo en direct avec une latence quasi-nulle pour une réactivité immédiate.</p>
+        <!-- SECTIONS -->
+        <div class="sections-wrapper">
+
+            <!-- Section 1 : Texte gauche, Vidéo droite -->
+            <div class="feature-section bg-1">
+                <div class="section-text">
+                    <div class="section-badge"><i class="fa-solid fa-video"></i> Détection Live</div>
+                    <h2>Détection en Continu</h2>
+                    <p>Analysez en temps réel le flux vidéo de votre restaurant. Notre système traite chaque image avec une latence quasi-nulle, permettant une réactivité immédiate face aux signaux émotionnels de vos clients.</p>
+                    <p>Grâce à la détection multi-visages simultanée, vous gardez une vue d'ensemble complète de l'ambiance de votre salle à tout moment.</p>
+                </div>
+                <div class="section-media">
+                    <video autoplay muted loop playsinline>
+                        <source src="{{ url_for('static', filename='uploads/WhatsApp Video 2026-04-18 at 16.33.07 (1).mp4') }}" type="video/mp4">
+                    </video>
+                </div>
             </div>
-            <div class="glass-card feature-card">
-                <div class="feature-icon"><i class="fa-solid fa-face-smile-beam"></i></div>
-                <h3>7 Émotions Clés</h3>
-                <p>Reconnaissance faciale ultra-précise basée sur un modèle de Deep Learning de pointe.</p>
+
+            <div class="section-divider"></div>
+
+            <!-- Section 2 : Vidéo gauche, Texte droite -->
+            <div class="feature-section reverse bg-2">
+                <div class="section-text">
+                    <div class="section-badge"><i class="fa-solid fa-face-smile-beam"></i> IA Avancée</div>
+                    <h2>7 Émotions Clés Reconnues</h2>
+                    <p>Notre modèle de Deep Learning reconnaît avec précision 7 émotions fondamentales : joie, colère, tristesse, peur, dégoût, surprise et neutralité.</p>
+                    <p>Entraîné sur des milliers de visages, il s'adapte à toutes les conditions d'éclairage et fournit un score de confiance pour chaque détection.</p>
+                </div>
+                <div class="section-media">
+                    <img src="{{ url_for('static', filename='images/WhatsApp Image 2026-04-18 at 16.33.08.jpeg') }}" alt="7 émotions">
+                </div>
             </div>
-            <div class="glass-card feature-card">
-                <div class="feature-icon"><i class="fa-solid fa-bell"></i></div>
-                <h3>Alertes Mécontentement</h3>
-                <p>Système de notification intelligent pour manager en cas de colère prolongée (>10s).</p>
+
+            <div class="section-divider"></div>
+
+            <!-- Section 3 : Texte gauche, Vidéo droite -->
+            <div class="feature-section bg-3">
+                <div class="section-text">
+                    <div class="section-badge"><i class="fa-solid fa-bell"></i> Alertes Intelligentes</div>
+                    <h2>Alertes Mécontentement Automatiques</h2>
+                    <p>Dès qu'un client exprime de la colère pendant plus de 10 secondes, le système déclenche automatiquement une notification pour alerter le manager.</p>
+                    <p>Intervenez avant que la situation ne dégénère et transformez une expérience négative en une opportunité de fidélisation.</p>
+                </div>
+                <div class="section-media">
+                    <video autoplay muted loop playsinline>
+                        <source src="{{ url_for('static', filename='uploads/WhatsApp Video 2026-04-18 at 16.33.07.mp4') }}" type="video/mp4">
+                    </video>
+                </div>
             </div>
+
         </div>
     </main>
 
     <script src="{{ url_for('static', filename='js/Acceuil.js') }}"></script>
 </body>
+<footer class="landing-footer">
+    <div class="footer-top">
+        <div class="footer-brand">
+            <div class="footer-logo">
+                <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="Logo">
+                <span>SmartResto</span>
+            </div>
+            <p>La première solution d'analyse émotionnelle en temps réel dédiée à la restauration. Transformez chaque interaction en excellence.</p>
+        </div>
+
+        <div class="footer-links">
+            <div class="footer-col">
+                <h4>Navigation</h4>
+                <a href="{{ url_for('index') }}">Accueil</a>
+                <a href="{{ url_for('login') }}">Dashboard</a>
+                <a href="{{ url_for('register') }}">S'inscrire</a>
+            </div>
+            <div class="footer-col">
+                <h4>Fonctionnalités</h4>
+                <a href="#">Détection Live</a>
+                <a href="#">7 Émotions</a>
+                <a href="#">Alertes Manager</a>
+                <a href="#">Rapports</a>
+            </div>
+            <div class="footer-col">
+                <h4>Technologies</h4>
+                <a href="#">Python & Flask</a>
+                <a href="#">TensorFlow CNN</a>
+                <a href="#">OpenCV</a>
+                <a href="#">Deep Learning</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <p>© 2026 SmartResto AI — Projet Académique IA</p>
+        <p>Développé avec <i class="fa-solid fa-heart" style="color: #ef4444;"></i> par l'équipe SmartResto</p>
+    </div>
+</footer>
 </html>
