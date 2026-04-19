@@ -64,5 +64,17 @@
         "customers": 8,
         "satisfaction": 7,
         "alerts": 0
+    },
+    {
+        "date": "2026-04-19 17:09",
+        "customers": 3,
+        "satisfaction": 47,
+        "alerts": 0
+    },
+    {
+        "date": "2026-04-19 17:30",
+        "customers": 2,
+        "satisfaction": 89,
+        "alerts": 0
     }
 ]

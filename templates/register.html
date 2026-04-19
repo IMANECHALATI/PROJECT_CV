@@ -13,22 +13,24 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            overflow: auto;
+            overflow-y: auto;
+            padding: 40px 20px;
         }
+        
 
         .auth-card {
             background: rgba(26, 58, 45, 0.92);
             border: 1px solid rgba(245, 238, 218, 0.15);
             backdrop-filter: blur(20px);
             border-radius: 30px;
-            padding: 60px 50px;
             width: 100%;
-            max-width: 480px;
+            padding: 200px 50px 6px 50px;
+            max-width: 550px;
             box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 30px;
+            gap: 25px;
         }
 
         .auth-logo {
@@ -43,12 +45,13 @@
             height: 80px;
             border-radius: 50%;
             border: 2px solid #f1da9b;
+            object-fit: cover;
         }
 
         .auth-logo span {
             font-size: 1.6rem;
             font-weight: 800;
-            color: white;
+            color: #f1da9b;
         }
 
         .auth-card h2 {
@@ -58,11 +61,24 @@
             text-align: center;
         }
 
+        .auth-card p.auth-desc {
+            color: #f3d8a3;
+            font-size: 0.95rem;
+            text-align: center;
+            margin-top: -10px;
+        }
+
         .auth-form {
             width: 100%;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 18px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
         }
 
         .input-group {
@@ -73,7 +89,7 @@
 
         .input-group label {
             color: #f3d8a3;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -96,7 +112,7 @@
             width: 100%;
             background: rgba(245, 238, 218, 0.05);
             border: 1px solid rgba(245, 238, 218, 0.15);
-            padding: 16px 16px 16px 48px;
+            padding: 14px 14px 14px 48px;
             border-radius: 12px;
             color: white;
             outline: none;
@@ -106,6 +122,27 @@
 
         .auth-input:focus {
             border-color: #f1da9b;
+        }
+
+        .auth-input.error {
+            border-color: #ef4444;
+        }
+
+        .auth-input.success {
+            border-color: #34d399;
+        }
+
+        .field-error {
+            color: #fca5a5;
+            font-size: 0.8rem;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .divider {
+            width: 100%;
+            height: 1px;
+            background: rgba(245, 238, 218, 0.1);
         }
 
         .auth-btn {
@@ -119,7 +156,7 @@
             font-size: 1.1rem;
             cursor: pointer;
             transition: all 0.3s;
-            margin-top: 10px;
+            margin-top: 5px;
         }
 
         .auth-btn:hover {
@@ -153,6 +190,30 @@
             width: 100%;
             text-align: center;
         }
+
+        .success-msg {
+            background: rgba(52, 211, 153, 0.15);
+            border: 1px solid rgba(52, 211, 153, 0.4);
+            color: #34d399;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            width: 100%;
+            text-align: center;
+        }
+
+        .password-strength {
+            height: 4px;
+            border-radius: 10px;
+            margin-top: 6px;
+            transition: all 0.3s;
+            background: rgba(245, 238, 218, 0.1);
+        }
+
+        .strength-text {
+            font-size: 0.8rem;
+            margin-top: 4px;
+        }
     </style>
 </head>
 <body class="auth-body">
@@ -165,6 +226,7 @@
         </div>
 
         <h2>Créer un compte</h2>
+        <p class="auth-desc">Rejoignez SmartResto et gérez votre restaurant intelligemment.</p>
 
         {% if error %}
         <div class="error-msg">
@@ -172,26 +234,84 @@
         </div>
         {% endif %}
 
-        <form class="auth-form" method="POST" action="/register">
-            <div class="input-group">
-                <label>Nom d'utilisateur</label>
-                <div class="input-wrapper">
-                    <i class="fa-solid fa-user"></i>
-                    <input class="auth-input" type="text" name="username" placeholder="Choisissez un nom d'utilisateur" required>
+        <form class="auth-form" method="POST" action="/register" id="registerForm">
+
+            <!-- Nom & Prénom -->
+            <div class="form-row">
+                <div class="input-group">
+                    <label>Nom</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-user"></i>
+                        <input class="auth-input" type="text" name="nom" id="nom"
+                               placeholder="Votre nom" required>
+                    </div>
+                    <span class="field-error" id="nom-error">Nom requis</span>
+                </div>
+                <div class="input-group">
+                    <label>Prénom</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-user"></i>
+                        <input class="auth-input" type="text" name="prenom" id="prenom"
+                               placeholder="Votre prénom" required>
+                    </div>
+                    <span class="field-error" id="prenom-error">Prénom requis</span>
                 </div>
             </div>
 
+            <div class="divider"></div>
+
+            <!-- Nom d'utilisateur -->
+            <div class="input-group">
+                <label>Nom d'utilisateur</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-at"></i>
+                    <input class="auth-input" type="text" name="username" id="username"
+                           placeholder="Choisissez un nom d'utilisateur" required>
+                </div>
+                <span class="field-error" id="username-error">Nom d'utilisateur requis</span>
+            </div>
+
+            <!-- Email -->
+            <div class="input-group">
+                <label>Adresse Email</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-envelope"></i>
+                    <input class="auth-input" type="email" name="email" id="email"
+                           placeholder="votre@email.com" required>
+                </div>
+                <span class="field-error" id="email-error">Email invalide</span>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Mot de passe -->
             <div class="input-group">
                 <label>Mot de passe</label>
                 <div class="input-wrapper">
                     <i class="fa-solid fa-lock"></i>
-                    <input class="auth-input" type="password" name="password" placeholder="Choisissez un mot de passe" required>
+                    <input class="auth-input" type="password" name="password" id="password"
+                           placeholder="Minimum 6 caractères" required>
                 </div>
+                <div class="password-strength" id="strength-bar"></div>
+                <span class="strength-text" id="strength-text"></span>
+                <span class="field-error" id="password-error">Mot de passe trop court</span>
             </div>
 
-            <button type="submit" class="auth-btn">
-                <i class="fa-solid fa-user-plus"></i> S'inscrire
+            <!-- Confirmation mot de passe -->
+            <div class="input-group">
+                <label>Confirmer le mot de passe</label>
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-lock"></i>
+                    <input class="auth-input" type="password" name="confirm_password" id="confirm_password"
+                           placeholder="Répétez votre mot de passe" required>
+                </div>
+                <span class="field-error" id="confirm-error">Les mots de passe ne correspondent pas</span>
+            </div>
+
+            <button type="submit" class="auth-btn" id="submitBtn">
+                <i class="fa-solid fa-user-plus"></i> Créer mon compte
             </button>
+
         </form>
 
         <p class="auth-link">
@@ -199,6 +319,74 @@
         </p>
 
     </div>
+
+    <script>
+        // Force du mot de passe
+        document.getElementById('password').addEventListener('input', function() {
+            const val = this.value;
+            const bar = document.getElementById('strength-bar');
+            const text = document.getElementById('strength-text');
+
+            if (val.length === 0) {
+                bar.style.width = '0%';
+                bar.style.background = 'transparent';
+                text.textContent = '';
+            } else if (val.length < 4) {
+                bar.style.width = '25%';
+                bar.style.background = '#ef4444';
+                text.style.color = '#ef4444';
+                text.textContent = 'Très faible';
+            } else if (val.length < 6) {
+                bar.style.width = '50%';
+                bar.style.background = '#f97316';
+                text.style.color = '#f97316';
+                text.textContent = 'Faible';
+            } else if (val.length < 10) {
+                bar.style.width = '75%';
+                bar.style.background = '#f1da9b';
+                text.style.color = '#f1da9b';
+                text.textContent = 'Moyen';
+            } else {
+                bar.style.width = '100%';
+                bar.style.background = '#34d399';
+                text.style.color = '#34d399';
+                text.textContent = 'Fort';
+            }
+        });
+
+        // Vérification confirmation mot de passe
+        document.getElementById('confirm_password').addEventListener('input', function() {
+            const password = document.getElementById('password').value;
+            const error = document.getElementById('confirm-error');
+            if (this.value !== password) {
+                this.classList.add('error');
+                this.classList.remove('success');
+                error.style.display = 'block';
+            } else {
+                this.classList.remove('error');
+                this.classList.add('success');
+                error.style.display = 'none';
+            }
+        });
+
+        // Validation avant soumission
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            const password = document.getElementById('password').value;
+            const confirm = document.getElementById('confirm_password').value;
+
+            if (password !== confirm) {
+                e.preventDefault();
+                document.getElementById('confirm-error').style.display = 'block';
+                return;
+            }
+
+            if (password.length < 6) {
+                e.preventDefault();
+                document.getElementById('password-error').style.display = 'block';
+                return;
+            }
+        });
+    </script>
 
 </body>
 </html>

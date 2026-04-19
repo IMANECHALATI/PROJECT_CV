@@ -201,14 +201,29 @@ def generate_frames():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
+        nom = request.form.get('nom')
+        prenom = request.form.get('prenom')
         username = request.form.get('username')
+        email = request.form.get('email')
         password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
         users = load_users()
 
         if username in users:
             return render_template('register.html', error="Nom d'utilisateur déjà pris.")
 
-        users[username] = hash_password(password)
+        if password != confirm_password:
+            return render_template('register.html', error="Les mots de passe ne correspondent pas.")
+
+        if len(password) < 6:
+            return render_template('register.html', error="Mot de passe trop court (minimum 6 caractères).")
+
+        users[username] = {
+            "nom": nom,
+            "prenom": prenom,
+            "email": email,
+            "password": hash_password(password)
+        }
         save_users(users)
         return redirect(url_for('login'))
 
@@ -221,8 +236,10 @@ def login():
         password = request.form.get('password')
         users = load_users()
 
-        if username in users and users[username] == hash_password(password):
+        if username in users and users[username]["password"] == hash_password(password):
             session['user'] = username
+            session['nom'] = users[username]["nom"]
+            session['prenom'] = users[username]["prenom"]
             return redirect(url_for('dashboard'))
 
         return render_template('login.html', error="Identifiants incorrects.")
@@ -232,6 +249,8 @@ def login():
 @app.route('/logout')
 def logout():
     session.pop('user', None)
+    session.pop('nom', None)
+    session.pop('prenom', None)
     return redirect(url_for('index'))
 
 # ============================================
