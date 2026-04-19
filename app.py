@@ -147,9 +147,9 @@ current_emotion = {"emotion": "neutral", "confidence": 0, "face_detected": False
 def get_camera():
     global camera
     if camera is None:
-        camera = cv2.VideoCapture(0)
+        # Remplacez par l'IP de votre téléphone
+        camera = cv2.VideoCapture("http://192.168.1.5:8080/video")
     return camera
-
 def generate_frames():
     global current_emotion
     model = load_model(EMOTION_MODEL)
