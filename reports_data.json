@@ -1,0 +1,68 @@
+[
+    {
+        "date": "2026-04-18 18:47",
+        "customers": 5,
+        "satisfaction": 53,
+        "alerts": 0
+    },
+    {
+        "date": "2026-04-18 18:47",
+        "customers": 3,
+        "satisfaction": 36,
+        "alerts": 0
+    },
+    {
+        "date": "2026-04-18 18:54",
+        "customers": 6,
+        "satisfaction": 61,
+        "alerts": 0
+    },
+    {
+        "date": "2026-04-18 18:55",
+        "customers": 3,
+        "satisfaction": 40,
+        "alerts": 0
+    },
+    {
+        "date": "2026-04-18 19:06",
+        "customers": 3,
+        "satisfaction": 79,
+        "alerts": 0
+    },
+    {
+        "date": "2026-04-18 19:07",
+        "customers": 6,
+        "satisfaction": 41,
+        "alerts": 0
+    },
+    {
+        "date": "2026-04-18 19:10",
+        "customers": 9,
+        "satisfaction": 90,
+        "alerts": 0
+    },
+    {
+        "date": "2026-04-18 19:11",
+        "customers": 7,
+        "satisfaction": 61,
+        "alerts": 0
+    },
+    {
+        "date": "2026-04-18 19:18",
+        "customers": 10,
+        "satisfaction": 78,
+        "alerts": 0
+    },
+    {
+        "date": "2026-04-18 19:20",
+        "customers": 12,
+        "satisfaction": 26,
+        "alerts": 0
+    },
+    {
+        "date": "2026-04-18 19:22",
+        "customers": 8,
+        "satisfaction": 7,
+        "alerts": 0
+    }
+]

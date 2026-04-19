@@ -23,7 +23,6 @@ EMOTIONS = ['angry', 'disgust', 'fear', 'happy', 'neutral', 'sad', 'surprise']
 USERS_FILE = "users.json"
 REPORTS_FILE = "reports_data.json"
 
-# Paramètres modifiables depuis Settings
 APP_SETTINGS = {
     "sensitivity": 5,
     "confidence": 70,
