@@ -88,5 +88,23 @@
         "customers": 2,
         "satisfaction": 87,
         "alerts": 0
+    },
+    {
+        "date": "2026-04-20 04:50",
+        "customers": 7,
+        "satisfaction": 3,
+        "alerts": 2
+    },
+    {
+        "date": "2026-04-20 04:54",
+        "customers": 6,
+        "satisfaction": 0,
+        "alerts": 1
+    },
+    {
+        "date": "2026-04-20 05:01",
+        "customers": 4,
+        "satisfaction": 18,
+        "alerts": 1
     }
 ]

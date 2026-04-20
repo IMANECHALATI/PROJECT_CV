@@ -15,14 +15,12 @@
             <span>SmartResto</span>
         </div>
         <nav>
-           
             <a href="{{ url_for('dashboard') }}" class="nav-item"><i class="fa-solid fa-border-all"></i> Dashboard</a>
             <a href="{{ url_for('reports') }}" class="nav-item"><i class="fa-solid fa-chart-pie"></i> Reports</a>
             <a href="{{ url_for('settings') }}" class="nav-item active"><i class="fa-solid fa-sliders"></i> Settings</a>
-                     <!-- Déconnexion en bas -->
-    <a href="{{ url_for('logout') }}" class="nav-item logout-btn">
-        <i class="fa-solid fa-right-from-bracket"></i> Déconnexion
-    </a>
+            <a href="{{ url_for('logout') }}" class="nav-item logout-btn" style="margin-top: 30px; color: #ef4444;">
+                <i class="fa-solid fa-right-from-bracket"></i> Déconnexion
+            </a>
         </nav>
     </aside>
 
@@ -33,6 +31,7 @@
         </header>
 
         <div class="settings-grid">
+            
             <section class="glass-card">
                 <h3><i class="fa-solid fa-microchip"></i> Configuration IA</h3>
                 <div class="form-group">
@@ -44,10 +43,17 @@
                     <label>Seuil de confiance de prédiction (%)</label>
                     <input type="number" class="glass-input" id="confidence" value="70">
                 </div>
+                <div class="form-group" style="margin-top: 25px;">
+                    <label>Moteur Deep Learning</label>
+                    <select class="glass-input" id="scan_mode" style="color: black;">
+                        <option value="deep">🔬 Deep Scan (Haute Précision)</option>
+                        <option value="fast">🚀 Scan Rapide (Éco-Performance)</option>
+                    </select>
+                </div>
             </section>
 
             <section class="glass-card">
-                <h3><i class="fa-solid fa-bell"></i> Système d'Alertes</h3>
+                <h3><i class="fa-solid fa-bell"></i> Système d'Alertes & Données</h3>
                 <div class="toggle-group">
                     <span>Activer les Notifications (Colère)</span>
                     <label class="switch"><input type="checkbox" id="alerts_enabled" checked><span class="toggle-slider"></span></label>
@@ -56,7 +62,43 @@
                     <label>Délai avant alerte de mécontentement (s)</label>
                     <input type="number" class="glass-input" id="alert_delay" value="10">
                 </div>
+                <div class="form-group" style="margin-top: 25px;">
+                    <label>Rétention des données RGPD (Auto-Delete)</label>
+                    <select class="glass-input" id="data_retention" style="color: black;">
+                        <option value="never">💾 Ne jamais effacer l'historique</option>
+                        <option value="24h">⏱️ Effacer automatiquement après 24 heures</option>
+                        <option value="7d">📅 Effacer automatiquement après 7 jours</option>
+                    </select>
+                </div>
             </section>
+
+            <section class="glass-card" style="grid-column: span 2;">
+                <h3><i class="fa-solid fa-video"></i> Flux Optique (Caméra / Vidéo)</h3>
+                <div style="display: flex; gap: 20px;">
+                    
+                    <div class="form-group" style="flex: 1;">
+                        <label>Source d'Acquisition</label>
+                        <select class="glass-input" id="camera_source" style="color: black;">
+                            <option value="0">💻 Webcam intégrée (PC)</option>
+                            <option value="1">📷 Webcam externe USB</option>
+                            <option value="ip">📱 Caméra IP (Téléphone / Wi-Fi)</option>
+                            <option value="video">📼 Vidéo Enregistrée (Fichier MP4)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" id="ip_url_group" style="display: none; flex: 1;">
+                        <label>URL de la caméra IP (Ex: http://192.168.1.15:8080/video)</label>
+                        <input type="text" class="glass-input" id="ip_url" placeholder="http://192.168.1.X:8080/video">
+                    </div>
+
+                    <div class="form-group" id="video_upload_group" style="display: none; flex: 1;">
+                        <label>Sélectionner la vidéo de surveillance (.mp4)</label>
+                        <input type="file" class="glass-input" id="video_file" accept="video/mp4,video/avi" style="padding: 14px;">
+                    </div>
+
+                </div>
+            </section>
+
         </div>
     </main>
     <script src="{{ url_for('static', filename='js/settings.js') }}"></script>
